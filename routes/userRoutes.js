@@ -10,7 +10,7 @@ router.get('/googlelogin', passport.authenticate("google",{
 }))
 router.get('/login', passport.authenticate("google",{
     scope:["profile"],
-    successRedirect:process.env.FRONTEND_URL
+    successRedirect:'https://tasty-treat-65d32.web.app'
 }))
 
 router.get('/me',isAuthenticated,myProfile)

@@ -2,62 +2,45 @@ import mongoose from "mongoose";
 
 const schema = new mongoose.Schema({
   shippingInfo: {
-    hNo: {
+    address: {
       type: String,
-      required: true,
-    },
-    city: {
-      type: String,
-      required: true,
-    },
-    state: {
-      type: String,
-      required: true,
-    },
-
-    country: {
-      type: String,
-      required: true,
-    }, 
-    pinCode: {
-      type: Number,
       required: true,
     },
     phoneNo: {
-      type: Number,
+      type: String,
       required: true,
     },
   },
 
   orderItems: {
-    cheeseBurger: {
-      price: {
+    theClassic: {
+      quantity: {
         type: Number,
         required: true,
       },
-      quantity: {
+      price: {
         type: Number,
         required: true,
       },
     },
 
-    vegCheeseBurger: {
-      price: {
+    theCheesy: {
+      quantity: {
         type: Number,
         required: true,
       },
-      quantity: {
+      price: {
         type: Number,
         required: true,
       },
     },
 
-    burgerWithFries: {
-      price: {
+    theFirecracker: {
+      quantity: {
         type: Number,
         required: true,
       },
-      quantity: {
+      price: {
         type: Number,
         required: true,
       },
@@ -72,17 +55,17 @@ const schema = new mongoose.Schema({
 
   paymentMethod: {
     type: "String",
-    enum: ["COD", "Online"],
+    enum: ["COD", "online"],
     default: "COD",
   },
 
-  paymentInfo: {
-    type: mongoose.Schema.ObjectId,
-    ref: "Payment",
-  },
-  paidAt: Date,
+  // paymentInfo: {
+  //   type: mongoose.Schema.ObjectId,
+  //   ref: "Payment",
+  // },
+  // paidAt: Date,
 
-  itemsPrice: {
+  subTotal: {
     type: Number,
     default: 0,
   },

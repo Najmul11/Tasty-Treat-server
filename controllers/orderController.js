@@ -1,22 +1,27 @@
 import { asyncError } from "../middlewares/errorMiddleware.js";
 import { Order } from "../models/Order.js";
 
-export const placeOrder = asyncError(async (req, res, next) => {
-  const {
-    orderItems,paymentMethod,itemsPrice,
-    taxPrice,shippingCharges,totalAmount,
-  } = req.body;
+import Stripe from 'stripe';
 
-  const user = "req.user._id";
+const stripe = new Stripe('sk_test_51MM2bXEUzOIjs385qeyS5LOwuLcEIhKbcApMs5qIL1xVqRyo0v9UTQEV5N9dzUoO7ZGxK7rhFp9sFPogBDIVoGzE002s7h3wEx')
+
+export const placeOrder = asyncError(async(req, res, next) => {
+
+  const {cartItem,subTotal,tax,shippingCharge, total, shippingInfo} = req.body;
+  const shipping = {address:shippingInfo.address, phoneNo:shippingInfo.phone}
+
+
+  const user = req.user._id
+  if (!user) return  next(new ErrorHandler("Not Logged in", 401));
+
 
   const orderOptions = {
-    shippingInfo,
-    orderItems,
-    paymentMethod,
-    itemsPrice,
-    taxPrice,
-    shippingCharges,
-    totalAmount,
+    shippingInfo:shipping,
+    orderItems:cartItem,
+    subTotal,
+    taxPrice:tax,
+    shippingCharges:shippingCharge,
+    totalAmount:total,
     user,
   };
 
@@ -24,15 +29,46 @@ export const placeOrder = asyncError(async (req, res, next) => {
 
   res.status(201).json({
     success: true,
-    message: "Order Placed Successfully via Cash On Delivery",
+    message: "Order Placed Successfully",
   });
 });
+
+export const placeOrderWithOnlinePayment = asyncError(async(req, res, next) => {
+
+  const {cartItem,subTotal,tax,shippingCharge, total, shippingInfo,paymentMethod} = req.body;
+  const shipping = {address:shippingInfo.address, phoneNo:shippingInfo.phone}
+
+
+  const user = req.user._id
+  if (!user) return  next(new ErrorHandler("Not Logged in", 401));
+
+
+  const orderOptions = {
+    shippingInfo:shipping,
+    orderItems:cartItem,
+    subTotal,
+    taxPrice:tax,
+    shippingCharges:shippingCharge,
+    totalAmount:total,
+    user,
+    paymentMethod
+  };
+
+  await Order.create(orderOptions);
+
+  res.status(201).json({
+    success: true,
+    message: "Order Placed Successfully",
+  });
+});
+
+
 
 
 export const getMyOrders = asyncError(async (req, res, next) => {
   const orders = await Order.find({
     user: req.user._id,
-  }).populate("user", "name");
+  }).populate("user", "photo");
 
   res.status(200).json({
     success: true,
@@ -80,3 +116,35 @@ export const processOrder = asyncError(async (req, res, next) => {
     message: "Status Updated Successfully",
   });
 });
+
+
+export const paymentIntent = asyncError(async (req, res, next) => {
+  const total=req.body.total
+  console.log(total);
+  const amount= total *100
+  const paymentIntent= await stripe.paymentIntents.create({
+      currency:'bdt',
+      amount:amount,
+      "payment_method_types": [
+          "card"
+      ]
+  })
+  res.status(200).json({
+    success: true,
+    clientSecret: paymentIntent.client_secret
+  });
+
+});
+
+
+// export const payment = asyncError(async (req, res, next) => {
+//   const payId=req.body.payId
+
+//   await Payment.create({payId});
+ 
+//   res.status(200).json({
+//     success: true,
+//     message:'Payment successfull'
+//   });
+
+// });

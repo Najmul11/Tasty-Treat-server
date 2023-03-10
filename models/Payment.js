@@ -1,10 +1,6 @@
 import mongoose from "mongoose";
 
 const schema = new mongoose.Schema({
-  stripe_invoice: {
-    type: String,
-    required: true,
-  },
   stripe_payment_id: {
     type: String,
     required: true,
@@ -15,4 +11,4 @@ const schema = new mongoose.Schema({
   },
 });
  
-export const Subscription = mongoose.model("Payment", schema);  
+export const Payment = mongoose.model("Payment", schema);
